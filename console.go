@@ -200,6 +200,26 @@ func (w ConsoleWriter) writeFields(evt map[string]interface{}, buf *bytes.Buffer
 		case LevelFieldName, TimestampFieldName, MessageFieldName, CallerFieldName:
 			continue
 		}
+		// Skip fields already rendered as parts, or excluded from parts,
+		// so they are not duplicated in the trailing fields.
+		for _, part := range w.PartsOrder {
+			if field == part {
+				isExcluded = true
+				break
+			}
+		}
+		if isExcluded {
+			continue
+		}
+		for _, excluded := range w.PartsExclude {
+			if field == excluded {
+				isExcluded = true
+				break
+			}
+		}
+		if isExcluded {
+			continue
+		}
 		fields = append(fields, field)
 	}
 
